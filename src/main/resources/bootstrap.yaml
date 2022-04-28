@@ -1,9 +1,0 @@
-spring:
-    application:
-        name: application-qa
-    cloud:
-        vault:
-            host: localhost
-            port: 8200
-            scheme: http
-            token: hvs.nEL6unzsfjlH9glmdLkt8NzH

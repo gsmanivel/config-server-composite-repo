@@ -16,7 +16,7 @@ spring:
       scheme: http
       kv-version: 2
       authentication: TOKEN
-      token: hvs.asG36TasAyYwNFLEEQIDHJzp
+      token: hvs.NtkFozm8Zffl8TBQVQ206dUp
 
   data:
     mongodb:
