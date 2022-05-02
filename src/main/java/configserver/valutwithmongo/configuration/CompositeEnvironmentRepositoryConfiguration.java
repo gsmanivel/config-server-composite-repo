@@ -1,26 +1,17 @@
 package configserver.valutwithmongo.configuration;
 
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.ObjectProvider;
+import java.util.Arrays;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.config.server.environment.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.config.server.environment.CompositeEnvironmentRepository;
-import org.springframework.cloud.config.server.environment.vault.SpringVaultClientConfiguration;
+import org.springframework.cloud.config.server.environment.VaultEnvironmentProperties;
 import org.springframework.cloud.config.server.environment.vault.SpringVaultEnvironmentRepository;
-import org.springframework.vault.authentication.TokenAuthentication;
-import org.springframework.vault.client.VaultEndpoint;
-import org.springframework.vault.core.VaultKeyValueOperations;
+import org.springframework.cloud.config.server.environment.vault.SpringVaultEnvironmentRepositoryFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.vault.core.VaultKeyValueOperationsSupport.KeyValueBackend;
-import org.springframework.vault.core.VaultTemplate;
-import org.springframework.web.client.RestTemplate;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-
 
 @Configuration
 public class CompositeEnvironmentRepositoryConfiguration {
@@ -29,7 +20,10 @@ public class CompositeEnvironmentRepositoryConfiguration {
     private MongoTemplate mongoTemplate;
 
     @Autowired
-    private ObjectProvider<HttpServletRequest> request;
+    private SpringVaultEnvironmentRepositoryFactory vaultEnvironmentRepositoryFactory;
+
+    @Value("${spring.cloud.config.server.vault.token}")
+    private String vaultToken;
 
     @Bean
     @Primary
@@ -40,43 +34,13 @@ public class CompositeEnvironmentRepositoryConfiguration {
         String path = "secret/myapp";
         properties.setPathToKey(path);
         properties.setKvVersion(2);
+        properties.setToken(vaultToken); 
+        
+        SpringVaultEnvironmentRepository vaultEnvironmentRepository = vaultEnvironmentRepositoryFactory
+                .build(properties);
 
-        //Remove this - hard code value after POC
-        VaultTemplate vaultTemplate = new VaultTemplate(VaultEndpoint.create("localhost", 8200),
-                new TokenAuthentication("hvs.NtkFozm8Zffl8TBQVQ206dUp"));
-
-
-        //Remove this - hard code value after POC
-        VaultKeyValueOperations vaultKeyValueOperations = vaultTemplate.opsForKeyValue(path, KeyValueBackend.KV_2);
-
-        SpringVaultEnvironmentRepository vaultEnvironmentRepository =
-                new SpringVaultEnvironmentRepository(request, new EnvironmentWatch.Default(), properties, vaultKeyValueOperations);
-        return new CompositeEnvironmentRepository(Arrays.asList(mongoEnvironmentRepository, vaultEnvironmentRepository), false);
+        return new CompositeEnvironmentRepository(Arrays.asList(mongoEnvironmentRepository, vaultEnvironmentRepository),
+                false);
     }
 
-
-    @Bean
-    public ObjectProvider<HttpServletRequest> getObjectProvider() {
-        return new ObjectProvider<HttpServletRequest>() {
-            @Override
-            public HttpServletRequest getObject(Object... objects) throws BeansException {
-                return null;
-            }
-
-            @Override
-            public HttpServletRequest getIfAvailable() throws BeansException {
-                return null;
-            }
-
-            @Override
-            public HttpServletRequest getIfUnique() throws BeansException {
-                return null;
-            }
-
-            @Override
-            public HttpServletRequest getObject() throws BeansException {
-                return null;
-            }
-        };
-    }
 }
