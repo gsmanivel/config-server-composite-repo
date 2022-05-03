@@ -17,6 +17,7 @@ spring:
       kv-version: 2
       authentication: TOKEN
       token: hvs.5C4IXyP4Jf1eJ4dUpLQAzkCq
+      token2: hvs.5C4IXyP4Jf1eJ4dUpLQAzkCq
 
   data:
     mongodb:
