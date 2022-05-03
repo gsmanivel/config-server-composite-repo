@@ -10,17 +10,14 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.util.StringUtils;
 
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 
 public class MongoEnvironmentRepository implements EnvironmentRepository, Ordered {
 
     private final MongoTemplate mongoTemplate;
     private final MapFlattener mapFlattener;
-
-    private int order = Ordered.LOWEST_PRECEDENCE;
+    private int order;
 
     public MongoEnvironmentRepository(int order,MongoTemplate mongoTemplate) {
         this.mongoTemplate=mongoTemplate;
@@ -30,27 +27,52 @@ public class MongoEnvironmentRepository implements EnvironmentRepository, Ordere
 
     @Override
     public Environment findOne(String application, String profile, String label) {
+        String[] applications = StringUtils.commaDelimitedListToStringArray(application);
         String[] profiles = StringUtils.commaDelimitedListToStringArray(profile);
-
+        Collections.reverse(Arrays.asList(applications));
         Query query= new Query();
-        query.addCriteria(Criteria.where("name").in(application));
+        query.addCriteria(Criteria.where("name").in(applications));
         query.addCriteria(Criteria.where("profile").in(profiles));
         query.addCriteria(Criteria.where("label").in(label));
-        Environment environment;
+        Environment environment= new Environment(application, profiles, label, null, null);;
 
-        try {
-            List<MongoPropertySource> sources = mongoTemplate.find(query,MongoPropertySource.class,"gateway");
-            environment = new Environment(application, profiles, label, null, null);
-            for(MongoPropertySource source : sources){
-                String sourceName = source.getProfile() + source.getName();
-                Map<String,Object> flatSource = mapFlattener.flatten(source.getSource());
-                PropertySource propertySource = new PropertySource(sourceName,flatSource);
-                environment.add(propertySource);
+        for(int i=0;i< applications.length; i++){
+            try {
+                List<MongoPropertySource> sources = mongoTemplate.find(query, MongoPropertySource.class, applications[i]);
+                sortSourceByProfile(sources,Arrays.asList(profiles));
+                for (MongoPropertySource source : sources) {
+                    String sourceName = "mongodb:"+  source.getName()+"/"+source.getProfile() ;
+                    Map<String, Object> flatSource = mapFlattener.flatten(source.getSource());
+                    PropertySource propertySource = new PropertySource(sourceName, flatSource);
+                    environment.add(propertySource);
+                }
+            } catch (Exception e) {
+                throw new IllegalStateException("Can not load environment", e);
             }
-        }catch (Exception e) {
-                throw new IllegalStateException("Can not load environment",e);
         }
         return environment;
+    }
+
+    private void sortSourceByLabel(List<MongoPropertySource> sources, final List<String> labels){
+        Collections.sort(sources, new Comparator<MongoPropertySource>() {
+            @Override
+            public int compare(MongoPropertySource o1, MongoPropertySource o2) {
+               int i1=labels.indexOf(o1.getLabel());
+               int i2=labels.indexOf(o2.getLabel());
+               return Integer.compare(i2,i1);
+            }
+        });
+    }
+
+    private void sortSourceByProfile(List<MongoPropertySource> sources, final List<String> profiles){
+        Collections.sort(sources, new Comparator<MongoPropertySource>() {
+            @Override
+            public int compare(MongoPropertySource o1, MongoPropertySource o2) {
+                int i1=profiles.indexOf(o1.getLabel());
+                int i2=profiles.indexOf(o2.getLabel());
+                return Integer.compare(i2,i1);
+            }
+        });
     }
 
     @Override

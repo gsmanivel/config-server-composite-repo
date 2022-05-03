@@ -11,6 +11,7 @@ import org.springframework.cloud.config.server.environment.vault.SpringVaultEnvi
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.Ordered;
 import org.springframework.data.mongodb.core.MongoTemplate;
 
 @Configuration
@@ -28,17 +29,19 @@ public class CompositeEnvironmentRepositoryConfiguration {
     @Bean
     @Primary
     public CompositeEnvironmentRepository compositeEnvironmentRepository() {
-        MongoEnvironmentRepository mongoEnvironmentRepository = new MongoEnvironmentRepository(1, mongoTemplate);
+        MongoEnvironmentRepository mongoEnvironmentRepository = new MongoEnvironmentRepository(Ordered.LOWEST_PRECEDENCE, mongoTemplate);
 
         VaultEnvironmentProperties properties = new VaultEnvironmentProperties();
         String path = "secret/myapp";
         properties.setPathToKey(path);
+        properties.setProfileSeparator("/");
         properties.setKvVersion(2);
-        properties.setToken(vaultToken); 
-        
+        properties.setToken(vaultToken);
+
         SpringVaultEnvironmentRepository vaultEnvironmentRepository = vaultEnvironmentRepositoryFactory
                 .build(properties);
 
+        vaultEnvironmentRepository.setOrder(Ordered.HIGHEST_PRECEDENCE);
         return new CompositeEnvironmentRepository(Arrays.asList(mongoEnvironmentRepository, vaultEnvironmentRepository),
                 false);
     }
