@@ -4,20 +4,20 @@ server:
   port: 8082
 
 
-spring:
-  profiles:
-    active: vault
-  application.name: gateway
-
-  cloud.config.server:
-    vault:
-      host: localhost
-      port: 8200
-      scheme: http
-      kv-version: 2
-      authentication: TOKEN
-      token: hvs.0xxP2QizIVADvrjiaMNCSHMm
-      token2: hvs.0xxP2QizIVADvrjiaMNCSHMm
+#spring:
+#  profiles:
+#    active: vault
+#  application.name: gateway
+#
+#  cloud.config.server:
+#    vault:
+#      host: localhost
+#      port: 8200
+#      scheme: http
+#      kv-version: 2
+#      authentication: TOKEN
+#      token: hvs.0xxP2QizIVADvrjiaMNCSHMm
+#      token2: hvs.0xxP2QizIVADvrjiaMNCSHMm
 
   data:
     mongodb:

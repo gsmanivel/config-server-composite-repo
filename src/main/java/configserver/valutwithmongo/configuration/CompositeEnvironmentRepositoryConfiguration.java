@@ -24,14 +24,15 @@ public class CompositeEnvironmentRepositoryConfiguration {
     @Autowired
     private SpringVaultEnvironmentRepositoryFactory vaultEnvironmentRepositoryFactory;
 
-    @Value("${spring.cloud.config.server.vault.token}")
-    private String vaultToken;
-
-    @Value("${spring.cloud.config.server.vault.token2}")
-    private String vaultToken2;
+//    @Value("${spring.cloud.config.server.vault.token}")
+//    private String vaultToken;
+//
+//    @Value("${spring.cloud.config.server.vault.token2}")
+//    private String vaultToken2;
 
     SpringVaultEnvironmentRepository vaultRepoObjectToWrite;
     SpringVaultEnvironmentRepository vaultRepoObjectToRead;
+    SpringVaultEnvironmentRepository newVaultReadRepo;
 
     @Bean
     @Primary
@@ -40,28 +41,23 @@ public class CompositeEnvironmentRepositoryConfiguration {
         //MongoRepository object to read properties from mongoDB
         MongoEnvironmentRepository mongoEnvironmentRepository = new MongoEnvironmentRepository(Ordered.LOWEST_PRECEDENCE, mongoTemplate);
 
-        //VaultRepository object to read data from Vault
-        this.vaultRepoObjectToRead = vaultEnvironmentRepositoryFactory
-                .build(setVaultEnvironmentProperties("/", 2, vaultToken));
 
-        vaultRepoObjectToRead.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        VaultEnvironmentProperties readProps = new VaultEnvironmentProperties();
+//        readProps.setAuthentication(VaultEnvironmentProperties.AuthenticationMethod.APPROLE);
+//        readProps.getAppRole().setRole("myapp-read");
+//        readProps.getAppRole().setAppRolePath("new-app/dev");
+//        readProps.getAppRole().setRoleId("ac7fdff3-b3b8-b19f-86bd-005a486640b3");
+//        readProps.getAppRole().setSecretId("7dacff87-be0a-4c9a-2da3-754b024f410a");
+        this.newVaultReadRepo = vaultEnvironmentRepositoryFactory
+                .build(readProps);
 
-        //VaultRepository object to write data from Vault
-        /*this.vaultRepoObjectToWrite = vaultEnvironmentRepositoryFactory
-                .build(setVaultEnvironmentProperties("/", 2, vaultToken2));
-
-        vaultRepoObjectToWrite.setOrder(Ordered.HIGHEST_PRECEDENCE);*/
-
-
-        return new CompositeEnvironmentRepository(Arrays.asList(mongoEnvironmentRepository, vaultRepoObjectToRead),
+        return new CompositeEnvironmentRepository(Arrays.asList(mongoEnvironmentRepository, newVaultReadRepo),
                 false);
     }
 
 
     private VaultEnvironmentProperties setVaultEnvironmentProperties(String profileSeparator, int kvVersion, String vaultToken) {
         VaultEnvironmentProperties properties = new VaultEnvironmentProperties();
-//        String path = "secret/myapp";
-//        properties.setPathToKey(path);
         properties.setProfileSeparator(profileSeparator);
         properties.setKvVersion(kvVersion);
         properties.setToken(vaultToken);
