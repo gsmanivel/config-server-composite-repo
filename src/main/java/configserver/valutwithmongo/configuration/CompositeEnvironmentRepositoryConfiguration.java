@@ -43,11 +43,11 @@ public class CompositeEnvironmentRepositoryConfiguration {
 
 
         VaultEnvironmentProperties readProps = new VaultEnvironmentProperties();
-//        readProps.setAuthentication(VaultEnvironmentProperties.AuthenticationMethod.APPROLE);
-//        readProps.getAppRole().setRole("myapp-read");
-//        readProps.getAppRole().setAppRolePath("new-app/dev");
-//        readProps.getAppRole().setRoleId("ac7fdff3-b3b8-b19f-86bd-005a486640b3");
-//        readProps.getAppRole().setSecretId("7dacff87-be0a-4c9a-2da3-754b024f410a");
+        readProps.setAuthentication(VaultEnvironmentProperties.AuthenticationMethod.APPROLE);
+        readProps.getAppRole().setRole("myapp-read");
+        readProps.getAppRole().setAppRolePath("new-app/dev");
+        readProps.getAppRole().setRoleId("ac7fdff3-b3b8-b19f-86bd-005a486640b3");
+        readProps.getAppRole().setSecretId("7dacff87-be0a-4c9a-2da3-754b024f410a");
         this.newVaultReadRepo = vaultEnvironmentRepositoryFactory
                 .build(readProps);
 
