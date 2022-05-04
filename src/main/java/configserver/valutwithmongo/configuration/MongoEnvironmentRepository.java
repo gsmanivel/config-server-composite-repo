@@ -27,19 +27,31 @@ public class MongoEnvironmentRepository implements EnvironmentRepository, Ordere
 
     @Override
     public Environment findOne(String application, String profile, String label) {
-        String[] applications = StringUtils.commaDelimitedListToStringArray(application);
-        String[] profiles = StringUtils.commaDelimitedListToStringArray(profile);
-        Collections.reverse(Arrays.asList(applications));
-        Query query= new Query();
-        query.addCriteria(Criteria.where("name").in(applications));
-        query.addCriteria(Criteria.where("profile").in(profiles));
-        query.addCriteria(Criteria.where("label").in(label));
-        Environment environment= new Environment(application, profiles, label, null, null);;
 
+        String[] applications = StringUtils.commaDelimitedListToStringArray(application);
+        List<String> applicationList = new ArrayList<String>(Arrays.asList(applications));
+        applicationList = new ArrayList<String>(new LinkedHashSet<String>(applicationList));
+        Collections.reverse(applicationList);
+
+        String[] profiles = StringUtils.commaDelimitedListToStringArray(profile);
+        List<String> profileList = new ArrayList<String>(Arrays.asList(profiles));
+        profileList = new ArrayList<String>(new LinkedHashSet<String>(profileList));
+
+        String[] labels = StringUtils.commaDelimitedListToStringArray(label);
+        List<String> labelList = new ArrayList<String>(Arrays.asList(labels));
+        labelList = new ArrayList<String>(new LinkedHashSet<String>(labelList));
+
+        Query query= new Query();
+        query.addCriteria(Criteria.where("name").in(applicationList.toArray()));
+        query.addCriteria(Criteria.where("profile").in(profileList.toArray()));
+        query.addCriteria(Criteria.where("label").in(labelList.toArray()));
+        Environment environment= new Environment(application, profiles, label, null, null);;
+        List<MongoPropertySource> sources;
         for(int i=0;i< applications.length; i++){
             try {
-                List<MongoPropertySource> sources = mongoTemplate.find(query, MongoPropertySource.class, applications[i]);
-                sortSourceByProfile(sources,Arrays.asList(profiles));
+                sources = mongoTemplate.find(query, MongoPropertySource.class, applications[i]);
+                sortSourceByLabel(sources,labelList);
+                sortSourceByProfile(sources,profileList);
                 for (MongoPropertySource source : sources) {
                     String sourceName = "mongodb:"+  source.getName()+"/"+source.getProfile() ;
                     Map<String, Object> flatSource = mapFlattener.flatten(source.getSource());
@@ -65,13 +77,18 @@ public class MongoEnvironmentRepository implements EnvironmentRepository, Ordere
     }
 
     private void sortSourceByProfile(List<MongoPropertySource> sources, final List<String> profiles){
-        Collections.sort(sources, new Comparator<MongoPropertySource>() {
-            @Override
-            public int compare(MongoPropertySource o1, MongoPropertySource o2) {
-                int i1=profiles.indexOf(o1.getLabel());
-                int i2=profiles.indexOf(o2.getLabel());
-                return Integer.compare(i2,i1);
-            }
+        Collections.sort(sources, (o1, o2) -> {
+            int i1=profiles.indexOf(o1.getProfile());
+            int i2=profiles.indexOf(o2.getProfile());
+            return Integer.compare(i2,i1);
+        });
+    }
+
+    private void sortSourceByApplication(List<MongoPropertySource> sources, final List<String> applications){
+        Collections.sort(sources, (o1, o2) -> {
+            int i1=applications.indexOf(o1.getName());
+            int i2=applications.indexOf(o2.getName());
+            return Integer.compare(i2,i1);
         });
     }
 
