@@ -47,10 +47,10 @@ public class CompositeEnvironmentRepositoryConfiguration {
         vaultRepoObjectToRead.setOrder(Ordered.HIGHEST_PRECEDENCE);
 
         //VaultRepository object to write data from Vault
-        /*this.vaultRepoObjectToWrite = vaultEnvironmentRepositoryFactory
+       this.vaultRepoObjectToWrite = vaultEnvironmentRepositoryFactory
                 .build(setVaultEnvironmentProperties("/", 2, vaultToken2));
 
-        vaultRepoObjectToWrite.setOrder(Ordered.HIGHEST_PRECEDENCE);*/
+        vaultRepoObjectToWrite.setOrder(Ordered.HIGHEST_PRECEDENCE);
 
 
         return new CompositeEnvironmentRepository(Arrays.asList(mongoEnvironmentRepository, vaultRepoObjectToRead),
