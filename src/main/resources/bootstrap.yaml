@@ -1,13 +1,13 @@
-#spring.cloud.vault:
-#  application-name: new-app
-#  enabled: true
-#  authentication: APPROLE
-#  uri: http://localhost:8200
-#  app-role:
-#    role-id: b173d642-288b-63ec-0dc1-ffc78073d971
-#    secret-id: 1930c67c-ea10-dde3-3a29-63fcffd76f0b
-#    role: new-app-read
-#    app-role-path: new-app/dev
-#  kv:
-#    enabled: true
-#    backend: kv
+spring.cloud.vault:
+  application-name: new-app
+  enabled: true
+  authentication: APPROLE
+  uri: http://localhost:8200
+  app-role:
+    role-id: 17cb3448-00cf-ad03-2cc9-4c944f2c1d40
+    secret-id: 1311be36-d307-bd03-8200-7a1eafb110e9
+    role: demorole
+    app-role-path: gateway/dev
+  kv:
+    enabled: true
+    backend: kv

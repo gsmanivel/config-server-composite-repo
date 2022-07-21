@@ -44,12 +44,12 @@ public class CompositeEnvironmentRepositoryConfiguration {
 
         VaultEnvironmentProperties readProps = new VaultEnvironmentProperties();
         readProps.setAuthentication(VaultEnvironmentProperties.AuthenticationMethod.APPROLE);
-        readProps.getAppRole().setRole("jenkins");
-        readProps.getAppRole().setAppRolePath("approle/");
+        readProps.getAppRole().setRole("demorole");
+        readProps.getAppRole().setAppRolePath("gateway/dev");
 
-        readProps.getAppRole().setRoleId("e18c76f3-5d18-49d1-2d41-2dcbf9327249");
-        readProps.getAppRole().setSecretId("602568f3-4c52-c35e-cc62-46a462b3d77a");
-        readProps.setProfileSeparator("/");
+        readProps.getAppRole().setRoleId("17cb3448-00cf-ad03-2cc9-4c944f2c1d40");
+        readProps.getAppRole().setSecretId("1311be36-d307-bd03-8200-7a1eafb110e9");
+       // readProps.setProfileSeparator("/");
         this.newVaultReadRepo = vaultEnvironmentRepositoryFactory
                 .build(readProps);
 
