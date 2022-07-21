@@ -23,16 +23,8 @@ public class CompositeEnvironmentRepositoryConfiguration {
 
     @Autowired
     private SpringVaultEnvironmentRepositoryFactory vaultEnvironmentRepositoryFactory;
-
-//    @Value("${spring.cloud.config.server.vault.token}")
-//    private String vaultToken;
-//
-//    @Value("${spring.cloud.config.server.vault.token2}")
-//    private String vaultToken2;
-
-    SpringVaultEnvironmentRepository vaultRepoObjectToWrite;
-    SpringVaultEnvironmentRepository vaultRepoObjectToRead;
-    SpringVaultEnvironmentRepository newVaultReadRepo;
+    SpringVaultEnvironmentRepository vaultEnvironmentRepositoryUsingAppRole;
+    SpringVaultEnvironmentRepository vaultEnvironmentRepositoryUsingToken;
 
     @Bean
     @Primary
@@ -41,38 +33,37 @@ public class CompositeEnvironmentRepositoryConfiguration {
         //MongoRepository object to read properties from mongoDB
         MongoEnvironmentRepository mongoEnvironmentRepository = new MongoEnvironmentRepository(Ordered.LOWEST_PRECEDENCE, mongoTemplate);
 
-
-        VaultEnvironmentProperties readProps = new VaultEnvironmentProperties();
-        readProps.setAuthentication(VaultEnvironmentProperties.AuthenticationMethod.APPROLE);
-        readProps.getAppRole().setRole("demorole");
-        readProps.getAppRole().setAppRolePath("gateway/dev");
-
-        readProps.getAppRole().setRoleId("17cb3448-00cf-ad03-2cc9-4c944f2c1d40");
-        readProps.getAppRole().setSecretId("1311be36-d307-bd03-8200-7a1eafb110e9");
-       // readProps.setProfileSeparator("/");
-        this.newVaultReadRepo = vaultEnvironmentRepositoryFactory
-                .build(readProps);
-
-        return new CompositeEnvironmentRepository(Arrays.asList(mongoEnvironmentRepository, newVaultReadRepo),
+        //VaultRepository object to read data from Vault
+        VaultEnvironmentProperties vaultEnvironmentPropertiesForToken = new VaultEnvironmentProperties();
+//        String path = "secret/myapp";
+//        properties.setPathToKey(path);
+        vaultEnvironmentPropertiesForToken.setProfileSeparator("/");
+        vaultEnvironmentPropertiesForToken.setKvVersion(2);
+        vaultEnvironmentPropertiesForToken.setToken("hvs.ASUinDQHL7TVJSIoiO8ISAbS");
+        vaultEnvironmentPropertiesForToken.setOrder(Ordered.HIGHEST_PRECEDENCE);
+        vaultEnvironmentRepositoryUsingToken = vaultEnvironmentRepositoryFactory.build(vaultEnvironmentPropertiesForToken);
+        return new CompositeEnvironmentRepository(Arrays.asList(mongoEnvironmentRepository, vaultEnvironmentRepositoryUsingToken),
                 false);
-    }
 
 
-    private VaultEnvironmentProperties setVaultEnvironmentProperties(String profileSeparator, int kvVersion, String vaultToken) {
-        VaultEnvironmentProperties properties = new VaultEnvironmentProperties();
-        properties.setProfileSeparator(profileSeparator);
-        properties.setKvVersion(kvVersion);
-        properties.setToken(vaultToken);
-        return properties;
-    }
+        //Below section is to enable vault environment with Approle Auth
+        //*************************************************************************************************************
+//        VaultEnvironmentProperties vaultEnvironmentPropertiesForAppRole = new VaultEnvironmentProperties();
+//        vaultEnvironmentPropertiesForAppRole.setAuthentication(VaultEnvironmentProperties.AuthenticationMethod.APPROLE);
+//        vaultEnvironmentPropertiesForAppRole.getAppRole().setRole("demorole");
+//        //vaultEnvironmentProperties.getAppRole().setAppRolePath("gateway/dev");
+//        //vaultEnvironmentPropertiesForAppRole.setProfileSeparator("/");
+//
+//        vaultEnvironmentPropertiesForAppRole.getAppRole().setRoleId("17cb3448-00cf-ad03-2cc9-4c944f2c1d40");
+//        vaultEnvironmentPropertiesForAppRole.getAppRole().setSecretId("6c53898b-53d1-b8c0-5d1b-e433a2c54aa0");
+//
+//        this.vaultEnvironmentRepositoryUsingAppRole = vaultEnvironmentRepositoryFactory
+//                .build(vaultEnvironmentPropertiesForAppRole);
+//
+//        return new CompositeEnvironmentRepository(Arrays.asList(mongoEnvironmentRepository,vaultEnvironmentRepositoryUsingAppRole),
+//                false);
 
-    public SpringVaultEnvironmentRepository getVaultRepoObjectToWrite() {
-        return vaultRepoObjectToWrite;
-    }
-
-
-    public SpringVaultEnvironmentRepository getVaultRepoObjectToRead() {
-        return vaultRepoObjectToRead;
+        //*************************************************************************************************************
     }
 
 }

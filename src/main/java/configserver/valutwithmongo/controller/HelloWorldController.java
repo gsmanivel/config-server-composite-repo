@@ -18,14 +18,14 @@ public class HelloWorldController {
         return "Hello";
     }
 
-
-    @PostMapping("/secret")
-    public void createSecret(@RequestParam String strPath, @RequestBody Object obj ){
-        compositeRepo.getVaultRepoObjectToWrite().getKeyValueTemplate().put(strPath,obj);
-    }
-
-    @PatchMapping("/secret")
-    public void updateSecret(@RequestParam String strPath, @RequestBody Map<String, ?> var2){
-        compositeRepo.getVaultRepoObjectToWrite().getKeyValueTemplate().patch(strPath,var2);
-    }
+//
+//    @PostMapping("/secret")
+//    public void createSecret(@RequestParam String strPath, @RequestBody Object obj ){
+//        compositeRepo.getVaultRepoObjectToWrite().getKeyValueTemplate().put(strPath,obj);
+//    }
+//
+//    @PatchMapping("/secret")
+//    public void updateSecret(@RequestParam String strPath, @RequestBody Map<String, ?> var2){
+//        compositeRepo.getVaultRepoObjectToWrite().getKeyValueTemplate().patch(strPath,var2);
+//    }
 }
