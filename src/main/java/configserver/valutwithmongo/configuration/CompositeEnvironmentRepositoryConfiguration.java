@@ -22,6 +22,9 @@ public class CompositeEnvironmentRepositoryConfiguration {
     private MongoTemplate mongoTemplate;
 
     @Autowired
+    VaultEnvironmentProperties vaultEnvironmentProperties;
+
+    @Autowired
     private SpringVaultEnvironmentRepositoryFactory vaultEnvironmentRepositoryFactory;
     SpringVaultEnvironmentRepository vaultEnvironmentRepositoryUsingAppRole;
     SpringVaultEnvironmentRepository vaultEnvironmentRepositoryUsingToken;
@@ -33,8 +36,9 @@ public class CompositeEnvironmentRepositoryConfiguration {
         //MongoRepository object to read properties from mongoDB
         MongoEnvironmentRepository mongoEnvironmentRepository = new MongoEnvironmentRepository(Ordered.LOWEST_PRECEDENCE, mongoTemplate);
 
-        //VaultRepository object to read data from Vault
-        VaultEnvironmentProperties vaultEnvironmentPropertiesForToken = new VaultEnvironmentProperties();
+        //Below section is to enable vault environment with Token
+        //*************************************************************************************************************
+      /*  VaultEnvironmentProperties vaultEnvironmentPropertiesForToken = new VaultEnvironmentProperties();
 //        String path = "secret/myapp";
 //        properties.setPathToKey(path);
         vaultEnvironmentPropertiesForToken.setProfileSeparator("/");
@@ -43,25 +47,25 @@ public class CompositeEnvironmentRepositoryConfiguration {
         vaultEnvironmentPropertiesForToken.setOrder(Ordered.HIGHEST_PRECEDENCE);
         vaultEnvironmentRepositoryUsingToken = vaultEnvironmentRepositoryFactory.build(vaultEnvironmentPropertiesForToken);
         return new CompositeEnvironmentRepository(Arrays.asList(mongoEnvironmentRepository, vaultEnvironmentRepositoryUsingToken),
-                false);
-
+                false);*/
+        //*************************************************************************************************************
 
         //Below section is to enable vault environment with Approle Auth
         //*************************************************************************************************************
-//        VaultEnvironmentProperties vaultEnvironmentPropertiesForAppRole = new VaultEnvironmentProperties();
+       // VaultEnvironmentProperties vaultEnvironmentPropertiesForAppRole = new VaultEnvironmentProperties();
+        System.out.println("Configserver:::"+ vaultEnvironmentProperties.getAppRole().getRole());
 //        vaultEnvironmentPropertiesForAppRole.setAuthentication(VaultEnvironmentProperties.AuthenticationMethod.APPROLE);
-//        vaultEnvironmentPropertiesForAppRole.getAppRole().setRole("demorole");
-//        //vaultEnvironmentProperties.getAppRole().setAppRolePath("gateway/dev");
-//        //vaultEnvironmentPropertiesForAppRole.setProfileSeparator("/");
-//
-//        vaultEnvironmentPropertiesForAppRole.getAppRole().setRoleId("17cb3448-00cf-ad03-2cc9-4c944f2c1d40");
-//        vaultEnvironmentPropertiesForAppRole.getAppRole().setSecretId("6c53898b-53d1-b8c0-5d1b-e433a2c54aa0");
-//
-//        this.vaultEnvironmentRepositoryUsingAppRole = vaultEnvironmentRepositoryFactory
-//                .build(vaultEnvironmentPropertiesForAppRole);
-//
-//        return new CompositeEnvironmentRepository(Arrays.asList(mongoEnvironmentRepository,vaultEnvironmentRepositoryUsingAppRole),
-//                false);
+//        vaultEnvironmentPropertiesForAppRole.getAppRole().setRole("configserver");
+//        vaultEnvironmentPropertiesForAppRole.getAppRole().setAppRolePath("secret/gateway/dev");
+        //vaultEnvironmentPropertiesForAppRole.setProfileSeparator("/");
+
+//        vaultEnvironmentPropertiesForAppRole.getAppRole().setRoleId("ea0de26c-2aa2-e218-920a-5ef4fd883bdf");
+//        vaultEnvironmentPropertiesForAppRole.getAppRole().setSecretId("0bb0f2cc-e97a-cfab-d708-cb38a00e25b4");
+
+        this.vaultEnvironmentRepositoryUsingAppRole = vaultEnvironmentRepositoryFactory
+                .build(vaultEnvironmentProperties);
+        return new CompositeEnvironmentRepository(Arrays.asList(mongoEnvironmentRepository,vaultEnvironmentRepositoryUsingAppRole),
+                false);
 
         //*************************************************************************************************************
     }

@@ -1,21 +1,30 @@
 
+logging:
+  level:
+    root: INFO
+    org.springframework.cloud.config: DEBUG
 
 server:
   port: 8082
 
 
-#spring:
-#  profiles:
-#    active: vault
-#  application.name: gateway
-#
-#  cloud.config.server:
-#    vault:
-#      host: localhost
-#      port: 8200
-#      scheme: http
-#      kv-version: 2
-#      authentication: TOKEN
+spring:
+  profiles:
+    active: vault
+  application.name: gateway
+
+  cloud.config.server:
+    vault:
+      host: localhost
+      port: 8200
+      scheme: http
+      kv-version: 2
+      authentication: APPROLE
+      app-role:
+        app-role-path: secret/gateway/dev
+        role: configserver
+        role-id: ea0de26c-2aa2-e218-920a-5ef4fd883bdf
+        secret-id: 0bb0f2cc-e97a-cfab-d708-cb38a00e25b4
 #      token: hvs.0xxP2QizIVADvrjiaMNCSHMm
 #      token2: hvs.0xxP2QizIVADvrjiaMNCSHMm
 
