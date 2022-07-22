@@ -14,6 +14,7 @@ import org.springframework.context.annotation.Primary;
 import org.springframework.core.Ordered;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.vault.core.VaultKeyValueOperations;
+import org.springframework.vault.core.VaultTemplate;
 
 @Configuration
 public class CompositeEnvironmentRepositoryConfiguration {
@@ -22,10 +23,18 @@ public class CompositeEnvironmentRepositoryConfiguration {
     private MongoTemplate mongoTemplate;
 
     @Autowired
+    VaultConfig vaultConfig;
+
+    @Autowired
+    VaultTemplate vaultTemplate;
+
+    @Autowired
     VaultEnvironmentProperties vaultEnvironmentProperties;
+
 
     @Autowired
     private SpringVaultEnvironmentRepositoryFactory vaultEnvironmentRepositoryFactory;
+
     SpringVaultEnvironmentRepository vaultEnvironmentRepositoryUsingAppRole;
     SpringVaultEnvironmentRepository vaultEnvironmentRepositoryUsingToken;
 
@@ -53,7 +62,11 @@ public class CompositeEnvironmentRepositoryConfiguration {
         //Below section is to enable vault environment with Approle Auth
         //*************************************************************************************************************
        // VaultEnvironmentProperties vaultEnvironmentPropertiesForAppRole = new VaultEnvironmentProperties();
+        vaultTemplate.opsForVersionedKeyValue("secret");
         System.out.println("Configserver:::"+ vaultEnvironmentProperties.getAppRole().getRole());
+        System.out.println("Configserver Object:::"+vaultEnvironmentProperties.getAppRole().getAppRolePath());
+//        System.out.println(vaultTemplate.read("dbpw"));
+//        System.out.println(vaultTemplate.read("gateway/dev/dbpw"));
 //        vaultEnvironmentPropertiesForAppRole.setAuthentication(VaultEnvironmentProperties.AuthenticationMethod.APPROLE);
 //        vaultEnvironmentPropertiesForAppRole.getAppRole().setRole("configserver");
 //        vaultEnvironmentPropertiesForAppRole.getAppRole().setAppRolePath("secret/gateway/dev");
