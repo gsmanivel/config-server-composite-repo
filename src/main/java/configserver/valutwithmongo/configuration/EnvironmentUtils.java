@@ -73,7 +73,6 @@ public class EnvironmentUtils {
                     propertySource.setSource(dataSource);
                 }
             }
-            return propertySource;
         } catch (WebClientException we) {
             System.out.println("Error in Fetching vault token");
         } catch (JsonMappingException e) {
