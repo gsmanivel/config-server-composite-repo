@@ -26,7 +26,6 @@ import configserver.valutwithmongo.configuration.EnvironmentUtils;
 public class VaultEnvironmentRepository implements EnvironmentRepository, Ordered {
     private final EnvironmentUtils.MapFlattener mapFlattener;
     private final int order;
-
     private final EnvironmentUtils environmentUtils;
 
     public VaultEnvironmentRepository(int order) {
@@ -39,12 +38,13 @@ public class VaultEnvironmentRepository implements EnvironmentRepository, Ordere
     public Environment findOne(String application, String profile, String label) {
         //Split the String using comma separator and convert it as List of String
         List<String> applicationList = environmentUtils.getList(application);
+        String[] profiles = StringUtils.commaDelimitedListToStringArray(profile);
         Collections.reverse(applicationList);
         List<String> profileList = environmentUtils.getList(profile);
         List<String> labelList = environmentUtils.getList(label);
 
         //Loop through Application , profile and label and create environment for each combination
-        Environment environment = new Environment(application, profile, label, null, null);
+        Environment environment = new Environment(application, profiles, label, null, null);
         List<CustomPropertySource> sources = new ArrayList<>();
         CustomPropertySource vaultPropertySource;
         try {
